@@ -2,7 +2,7 @@ import React from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import { FaUserGraduate, FaChalkboardTeacher, FaUsersCog , FaHome} from "react-icons/fa";
 import { Link } from "react-router-dom";
-import "../styles/admin.css"; 
+import "../styles/Admin.css"; 
 
 const AdminPanel = () => {
   return (
