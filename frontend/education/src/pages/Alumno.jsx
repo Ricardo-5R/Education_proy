@@ -6,7 +6,7 @@ import NavbarAlumno from "../components/alumnoNavbar"
 import SidebarAlumno from "../components/alumnoSidebar"
 import PostListEstudiante from "../components/alumnoPostform"
 import Contacts from "../components/Contacts"
-import "../styles/alumno.css"
+import "../styles/Alumno.css"
 
 const Estudiante = () => {
   const [posts, setPosts] = useState([
