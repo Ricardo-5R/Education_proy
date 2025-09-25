@@ -9,7 +9,7 @@ import {
   FaCog,
   FaComments,
 } from "react-icons/fa"
-import "../stylescomponents/Sidebar.css"
+import "../stylescomponents/sidebar.css"
 
 const Sidebar = () => {
   return (
