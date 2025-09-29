@@ -1,132 +1,159 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Container, Row, Col, Button, Modal, Form } from "react-bootstrap"
-import {FaPlus, FaEdit, FaTrash, FaSearch, FaCalendarAlt, FaClock, FaUsers, FaBook, FaSave, FaTimes ,FaChalkboardTeacher, } from "react-icons/fa"
-import CustomNavbar from "../../components/navbar"
-import Sidebar from "../../components/sidebar"
-import "../../styles/DocenteStyle/ClasesDocente.css"
+import { useState, useEffect } from "react";
+import {
+  Container,
+  Row,
+  Col,
+  Button,
+  Modal,
+  Form
+} from "react-bootstrap";
+import {
+  FaPlus,
+  FaEdit,
+  FaTrash,
+  FaSearch,
+  FaCalendarAlt,
+  FaClock,
+  FaUsers,
+  FaBook,
+  FaSave,
+  FaTimes,
+  FaChalkboardTeacher
+} from "react-icons/fa";
+import CustomNavbar from "../../components/navbar";
+import Sidebar from "../../components/sidebar";
+import "../../styles/DocenteStyle/ClasesDocente.css";
 
 const ClasesPage = () => {
-  // Estados para manejar las clases y modales
-  const [clases, setClases] = useState([])
-  const [searchTerm, setSearchTerm] = useState("")
-  const [showCreateModal, setShowCreateModal] = useState(false)
-  const [showEditModal, setShowEditModal] = useState(false)
-  const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [currentClase, setCurrentClase] = useState(null)
+  const [clases, setClases] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [currentClase, setCurrentClase] = useState(null);
   const [formData, setFormData] = useState({
     nombre: "",
     descripcion: "",
     fecha: ""
-  })
+  });
 
-  // Datos de ejemplo para clases - IMPORTANTE: ID como string para que coincida con el parámetro de la URL
+  // Simulación de carga inicial
   useEffect(() => {
-    // Simulación de carga de datos desde una API
-    const clasesEjemplo = [
-      {
-        id: "4", // Cambiado a string para que coincida con el parámetro de la URL
-        nombre: "Grupo A",
-        descripcion: "Desarrollo de aplicaciones web con React y Node.js",
-        fecha: "2023-05-18",
-        color: "#ff9800",
-      },
-    ]
+    const clasesGuardadas = JSON.parse(localStorage.getItem("clases"));
+    if (clasesGuardadas) {
+      setClases(clasesGuardadas);
+    } else {
+      const clasesEjemplo = [
+        {
+          id: "4",
+          nombre: "Grupo A",
+          descripcion: "Desarrollo de aplicaciones web con React y Node.js",
+          fecha: "2023-05-18",
+          color: "#ff9800"
+        }
+      ];
+      localStorage.setItem("clases", JSON.stringify(clasesEjemplo));
+      setClases(clasesEjemplo);
+    }
+  }, []);
 
-    setClases(clasesEjemplo)
-  }, [])
-
-  // Filtrar clases según la búsqueda
+  // Filtrar clases según búsqueda
   const filteredClases = clases.filter(
     (clase) =>
       clase.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      clase.descripcion.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+      clase.descripcion.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-  // Manejadores para los modales
+  // Abrir modal de creación
   const handleOpenCreateModal = () => {
     setFormData({
       nombre: "",
       descripcion: "",
       fecha: ""
-    })
-    setShowCreateModal(true)
-  }
+    });
+    setShowCreateModal(true);
+  };
 
+  // Abrir modal de edición
   const handleOpenEditModal = (clase, e) => {
-    e.stopPropagation()
-    e.preventDefault()
-    setCurrentClase(clase)
+    e.stopPropagation();
+    e.preventDefault();
+    setCurrentClase(clase);
     setFormData({
       nombre: clase.nombre,
       descripcion: clase.descripcion,
       fecha: clase.fecha
-    })
-    setShowEditModal(true)
-  }
- 
+    });
+    setShowEditModal(true);
+  };
+
+  // Abrir modal de eliminación
   const handleOpenDeleteModal = (clase, e) => {
-    e.stopPropagation()
-    e.preventDefault()
-    setCurrentClase(clase)
-    setShowDeleteModal(true)
-  }
+    e.stopPropagation();
+    e.preventDefault();
+    setCurrentClase(clase);
+    setShowDeleteModal(true);
+  };
 
   // Manejadores para los formularios
   const handleInputChange = (e) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: value,
-    })
-  }
+      [name]: value
+    });
+  };
 
   const handleCreateClase = () => {
-    // Generar un color aleatorio para la nueva clase
-    const colors = ["#00a9f4", "#00eca4", "#9c27b0", "#ff9800", "#e91e63", "#4caf50"]
-    const randomColor = colors[Math.floor(Math.random() * colors.length)]
-
-    // Generar un ID único como string
-    const newId = (clases.length + 1).toString()
+    const colors = ["#00a9f4", "#00eca4", "#9c27b0", "#ff9800", "#e91e63", "#4caf50"];
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+    const newId = Date.now().toString();
 
     const newClase = {
       id: newId,
       ...formData,
       estudiantes: Number.parseInt(formData.estudiantes) || 0,
-      color: randomColor,
-    }
+      color: randomColor
+    };
 
-    setClases([...clases, newClase])
-    setShowCreateModal(false)
-  }
+    const nuevasClases = [...clases, newClase];
+    setClases(nuevasClases);
+    localStorage.setItem("clases", JSON.stringify(nuevasClases));
+    setShowCreateModal(false);
+  };
 
   const handleEditClase = () => {
-    const updatedClases = clases.map((clase) => {
-      if (clase.id === currentClase.id) {
-        return {
-          ...clase,
-          ...formData,
-          estudiantes: Number.parseInt(formData.estudiantes) || 0,
-        }
-      }
-      return clase
-    })
+    const actualizadas = clases.map((clase) =>
+      clase.id === currentClase.id
+        ? {
+            ...clase,
+            ...formData,
+            estudiantes: Number.parseInt(formData.estudiantes) || 0
+          }
+        : clase
+    );
 
-    setClases(updatedClases)
-    setShowEditModal(false)
-  }
+    setClases(actualizadas);
+    localStorage.setItem("clases", JSON.stringify(actualizadas));
+    setShowEditModal(false);
+  };
 
   const handleDeleteClase = () => {
-    const updatedClases = clases.filter((clase) => clase.id !== currentClase.id)
-    setClases(updatedClases)
-    setShowDeleteModal(false)
-  }
+    const filtradas = clases.filter((clase) => clase.id !== currentClase.id);
+    setClases(filtradas);
+    localStorage.setItem("clases", JSON.stringify(filtradas));
+    setShowDeleteModal(false);
+  };
 
-  // Función para navegar a la página de detalles
   const navigateToClaseDetail = (claseId) => {
-    window.location.href = `/clases/${claseId}`
-  }
+    window.location.href = `/clases/${claseId}`;
+  };
+
+
+
+  
 
   return (
     <div className="clases-page">
