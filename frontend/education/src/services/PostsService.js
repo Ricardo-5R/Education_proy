@@ -1,146 +1,87 @@
-// services/PostsService.js
-
-const API_BASE_URL = 'http://localhost:3000/api/post';
+const STORAGE_KEY = "publicaciones";
 
 export default class PostsService {
-  /**
-   * Crear una nueva publicación
-   * @param {Object} postData - Datos de la publicación
-   * @param {Array} attachments - Archivos adjuntos
-   * @param {string} token - Token de autenticación
-   */
   static async create(postData, attachments = [], token) {
-    const formData = new FormData();
-    
-    // Agregar campos de la publicación al FormData
-    Object.keys(postData).forEach(key => {
-      formData.append(key, postData[key]);
-    });
-    
-    // Agregar archivos adjuntos
-    attachments.forEach((file, index) => {
-      formData.append('attachments', file);
-    });
+    try {
+      const publicaciones = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
 
-    const response = await fetch(`${API_BASE_URL}`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      },
-      body: formData
-    });
+      const nuevaPublicacion = {
+        id: Date.now().toString(),
+        ...postData,
+        attachments: attachments.map((file, i) => ({
+          name: file.name || `archivo_${i}`,
+          size: file.size || 0,
+          type: file.type || "application/octet-stream"
+        })),
+        createdAt: new Date().toISOString(),
+        token
+      };
 
-    if (!response.ok) {
-      throw new Error('Error al crear la publicación');
+      publicaciones.push(nuevaPublicacion);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(publicaciones));
+
+      return nuevaPublicacion;
+    } catch (error) {
+      throw new Error("Error al crear la publicación");
     }
-
-    return await response.json();
   }
 
-  /**
-   * Actualizar una publicación existente
-   * @param {string} postId - ID de la publicación
-   * @param {Object} postData - Datos actualizados
-   * @param {string} token - Token de autenticación
-   */
   static async update(postId, postData, token) {
-    const response = await fetch(`${API_BASE_URL}/${postId}`, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(postData)
-    });
+    try {
+      const publicaciones = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      const index = publicaciones.findIndex(p => p.id === postId);
+      if (index === -1) throw new Error("Publicación no encontrada");
 
-    if (!response.ok) {
-      throw new Error('Error al actualizar la publicación');
+      publicaciones[index] = {
+        ...publicaciones[index],
+        ...postData,
+        updatedAt: new Date().toISOString()
+      };
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(publicaciones));
+      return publicaciones[index];
+    } catch (error) {
+      throw new Error("Error al actualizar la publicación");
     }
-
-    return await response.json();
   }
 
-  /**
-   * Eliminar una publicación
-   * @param {string} postId - ID de la publicación
-   * @param {string} token - Token de autenticación
-   */
   static async delete(postId, token) {
-    const response = await fetch(`${API_BASE_URL}/${postId}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error('Error al eliminar la publicación');
+    try {
+      const publicaciones = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      const nuevas = publicaciones.filter(p => p.id !== postId);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(nuevas));
+      return { message: "Publicación eliminada" };
+    } catch (error) {
+      throw new Error("Error al eliminar la publicación");
     }
-
-    return await response.json();
   }
 
-  /**
-   * Obtener publicaciones por grupo
-   * @param {string} groupId - ID del grupo
-   * @param {string} token - Token de autenticación
-   */
   static async getForGroup(groupId, token) {
-    const response = await fetch(`${API_BASE_URL}/grupo/${groupId}`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error('Error al obtener publicaciones del grupo');
+    try {
+      const publicaciones = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      return publicaciones.filter(p => p.groupId === groupId);
+    } catch (error) {
+      throw new Error("Error al obtener publicaciones del grupo");
     }
-
-    return await response.json();
   }
 
-  /**
-   * Obtener publicaciones por docente
-   * @param {string} teacherId - ID del docente
-   * @param {string} token - Token de autenticación
-   */
   static async getByTeacher(teacherId, token) {
-    const response = await fetch(`${API_BASE_URL}/docente/${teacherId}`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error('Error al obtener publicaciones del docente');
+    try {
+      const publicaciones = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      return publicaciones.filter(p => p.teacherId === teacherId);
+    } catch (error) {
+      throw new Error("Error al obtener publicaciones del docente");
     }
-
-    return await response.json();
   }
 
-  /**
-   * Obtener una publicación por su ID
-   * @param {string} postId - ID de la publicación
-   * @param {string} token - Token de autenticación
-   */
   static async getById(postId, token) {
-    const response = await fetch(`${API_BASE_URL}/${postId}`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error('Error al obtener la publicación');
+    try {
+      const publicaciones = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      const post = publicaciones.find(p => p.id === postId);
+      if (!post) throw new Error("Publicación no encontrada");
+      return post;
+    } catch (error) {
+      throw new Error("Error al obtener la publicación");
     }
-
-    return await response.json();
   }
 }
