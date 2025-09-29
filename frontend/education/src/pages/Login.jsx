@@ -1,23 +1,46 @@
+const handleSignUp = async (e) => {
+  e.preventDefault();
+  setError("");
+  setIsLoading(true);
+
+  try {
+    const existingUsers = JSON.parse(localStorage.getItem("mockUsers")) || [];
+
+    const alreadyExists = existingUsers.some(u => u.email === formData.email);
+    if (alreadyExists) throw new Error("Este correo ya está registrado");
+
+    const newUser = {
+      ...formData,
+      id: Date.now(),
+      group
+    };
+
+    const updatedUsers = [...existingUsers, newUser];
+    localStorage.setItem("mockUsers", JSON.stringify(updatedUsers));
+
+    setIsSignUp(false);
+    alert("Registro exitoso! Ahora puedes iniciar sesión.");
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 const handleLogin = async (e) => {
   e.preventDefault();
   setError("");
   setIsLoading(true);
 
   try {
-    // Simulación de usuarios válidos
-    const mockUsers = [
-      { email: "admin@demo.com", password: "admin123", role: "admin", id: 1 },
-      { email: "docente@demo.com", password: "docente123", role: "docente", id: 2 },
-      { email: "alumno@demo.com", password: "alumno123", role: "alumno", id: 3 }
-    ];
+    const storedUsers = JSON.parse(localStorage.getItem("mockUsers")) || [];
 
-    const user = mockUsers.find(
+    const user = storedUsers.find(
       u => u.email === loginData.email && u.password === loginData.password
     );
 
     if (!user) throw new Error("Credenciales inválidas");
 
-    // Simular token y guardar en localStorage
     const token = "fake-token-" + user.role;
     localStorage.setItem("token", token);
     localStorage.setItem("user", JSON.stringify(user));
