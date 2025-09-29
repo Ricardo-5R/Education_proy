@@ -1,46 +1,54 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, Button, Form } from "react-bootstrap"
-import {FaClock, FaDownload, FaThumbsUp, FaComment, FaBookmark, FaFileAlt, FaPaperPlane, } from "react-icons/fa"
-import "../stylescomponents/alumnoPostform.css"
+import { useState } from "react";
+import { Card, Button, Form } from "react-bootstrap";
+import {
+  FaClock,
+  FaDownload,
+  FaThumbsUp,
+  FaComment,
+  FaBookmark,
+  FaFileAlt,
+  FaPaperPlane
+} from "react-icons/fa";
+import "../stylescomponents/alumnoPostform.css";
 
 const PostListEstudiante = ({ posts, addComment }) => {
-  const [commentText, setCommentText] = useState({})
-  const [showComments, setShowComments] = useState({})
+  const [commentText, setCommentText] = useState({});
+  const [showComments, setShowComments] = useState({});
 
   const handleCommentChange = (postId, text) => {
     setCommentText({
       ...commentText,
-      [postId]: text,
-    })
-  }
+      [postId]: text
+    });
+  };
 
   const handleSubmitComment = (postId) => {
     if (commentText[postId]?.trim()) {
-      addComment(postId, commentText[postId])
+      addComment(postId, commentText[postId]);
       setCommentText({
         ...commentText,
-        [postId]: "",
-      })
+        [postId]: ""
+      });
     }
-  }
+  };
 
   const toggleComments = (postId) => {
     setShowComments({
       ...showComments,
-      [postId]: !showComments[postId],
-    })
-  }
+      [postId]: !showComments[postId]
+    });
+  };
 
-  if (posts.length === 0) {
+  if (!posts || posts.length === 0) {
     return (
       <div className="empty-posts">
         <div className="empty-icon">📝</div>
         <h3>No hay publicaciones disponibles</h3>
         <p>Aún no hay contenido para mostrar</p>
       </div>
-    )
+    );
   }
 
   return (
@@ -51,15 +59,22 @@ const PostListEstudiante = ({ posts, addComment }) => {
             <div className="post-header">
               <div className="post-author">
                 <img
-                  src={post.author?.avatar || "https://mdbootstrap.com/img/Photos/Avatars/img%20(9).jpg"}
+                  src={
+                    post.author?.avatar ||
+                    "https://mdbootstrap.com/img/Photos/Avatars/img%20(9).jpg"
+                  }
                   alt="Author"
                   className="author-avatar"
                 />
                 <div className="author-info">
-                  <h5 className="author-name">{post.author?.name || "Profesor"}</h5>
+                  <h5 className="author-name">
+                    {post.author?.name || "Profesor"}
+                  </h5>
                   <div className="post-meta">
                     <FaClock className="meta-icon" />
-                    <span className="post-date">{post.date}</span>
+                    <span className="post-date">
+                      {new Date(post.createdAt || post.date).toLocaleString()}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -73,25 +88,18 @@ const PostListEstudiante = ({ posts, addComment }) => {
             <div className="post-content">
               <p className="post-text">{post.text}</p>
 
-              {/* Mostrar imagen si es un archivo de imagen */}
-              {post.file && post.file.type?.startsWith("image/") ? (
-                <div className="image-container">
-                  <img
-                    src={URL.createObjectURL(post.file) || "/placeholder.svg"}
-                    alt="Imagen subida"
-                    className="uploaded-img"
-                  />
-                </div>
-              ) : post.file ? (
-                // Mostrar botón de descarga si es otro tipo de archivo
+              {/* Mostrar archivos simulados */}
+              {post.attachments && post.attachments.length > 0 && (
                 <div className="download-container">
-                  <a href={URL.createObjectURL(post.file)} download className="download-btn">
-                    <FaFileAlt className="file-icon" />
-                    <span className="file-name">{post.file.name}</span>
-                    <FaDownload className="download-icon" />
-                  </a>
+                  {post.attachments.map((file, i) => (
+                    <div key={i} className="download-btn">
+                      <FaFileAlt className="file-icon" />
+                      <span className="file-name">{file.name}</span>
+                      <FaDownload className="download-icon" />
+                    </div>
+                  ))}
                 </div>
-              ) : null}
+              )}
             </div>
 
             <div className="post-actions">
@@ -99,16 +107,20 @@ const PostListEstudiante = ({ posts, addComment }) => {
                 <FaThumbsUp className="action-icon" />
                 <span className="action-text">Me gusta</span>
               </Button>
-              <Button variant="link" className="action-btn" onClick={() => toggleComments(post.id)}>
+              <Button
+                variant="link"
+                className="action-btn"
+                onClick={() => toggleComments(post.id)}
+              >
                 <FaComment className="action-icon" />
                 <span className="action-text">Comentar</span>
               </Button>
             </div>
 
             {/* Sección de comentarios */}
-            {(showComments[post.id] || post.comments.length > 0) && (
+            {(showComments[post.id] || post.comments?.length > 0) && (
               <div className="comments-section">
-                {post.comments.length > 0 && (
+                {post.comments?.length > 0 && (
                   <div className="comments-list">
                     {post.comments.map((comment) => (
                       <div key={comment.id} className="comment-item">
@@ -119,8 +131,12 @@ const PostListEstudiante = ({ posts, addComment }) => {
                         />
                         <div className="comment-content">
                           <div className="comment-header">
-                            <span className="comment-author">{comment.author}</span>
-                            <span className="comment-date">{comment.date}</span>
+                            <span className="comment-author">
+                              {comment.author}
+                            </span>
+                            <span className="comment-date">
+                              {new Date(comment.date).toLocaleString()}
+                            </span>
                           </div>
                           <p className="comment-text">{comment.text}</p>
                         </div>
@@ -140,11 +156,13 @@ const PostListEstudiante = ({ posts, addComment }) => {
                       type="text"
                       placeholder="Escribe un comentario..."
                       value={commentText[post.id] || ""}
-                      onChange={(e) => handleCommentChange(post.id, e.target.value)}
+                      onChange={(e) =>
+                        handleCommentChange(post.id, e.target.value)
+                      }
                       className="comment-input"
                       onKeyPress={(e) => {
                         if (e.key === "Enter") {
-                          handleSubmitComment(post.id)
+                          handleSubmitComment(post.id);
                         }
                       }}
                     />
@@ -164,7 +182,7 @@ const PostListEstudiante = ({ posts, addComment }) => {
         </Card>
       ))}
     </div>
-  )
-}
+  );
+};
 
-export default PostListEstudiante
+export default PostListEstudiante;
