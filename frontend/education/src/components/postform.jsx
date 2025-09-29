@@ -1,38 +1,50 @@
-"use client"
-
-import { useState } from "react"
-import { Card, Form, Button } from "react-bootstrap"
-import { FaImage, FaFileAlt, FaVideo, FaLink } from "react-icons/fa"
-import "../stylescomponents/postform.css"
+import { useState } from "react";
+import { Card, Form, Button } from "react-bootstrap";
+import { FaImage, FaFileAlt } from "react-icons/fa";
+import "../stylescomponents/postform.css";
 
 const PostForm = ({ addPost }) => {
-  const [file, setFile] = useState(null)
-  const [postText, setPostText] = useState("")
+  const [file, setFile] = useState(null);
+  const [postText, setPostText] = useState("");
 
   const handlePost = (event) => {
-    event.preventDefault()
+    event.preventDefault();
+    if (!postText.trim() && !file) return;
 
-    if (!postText.trim() && !file) return
+    // Simular metadatos del archivo
+    const simulatedAttachment = file
+      ? {
+          name: file.name,
+          size: file.size,
+          type: file.type
+        }
+      : null;
 
-    addPost({
+    const nuevaPublicacion = {
       text: postText,
-      file,
-      date: new Date().toLocaleString(),
+      attachments: simulatedAttachment ? [simulatedAttachment] : [],
+      createdAt: new Date().toISOString(),
       author: {
         name: "Profesor Martínez",
-        avatar: "https://mdbootstrap.com/img/Photos/Avatars/img%20(9).jpg",
-      },
-    })
+        avatar: "https://mdbootstrap.com/img/Photos/Avatars/img%20(9).jpg"
+      }
+    };
 
-    setFile(null)
-    setPostText("")
-  }
+    addPost(nuevaPublicacion);
+
+    setFile(null);
+    setPostText("");
+  };
 
   return (
     <Card className="post-card">
       <div className="post-card-header">
         <div className="post-author">
-          <img src="https://mdbootstrap.com/img/Photos/Avatars/img%20(9).jpg" alt="Profile" className="author-avatar" />
+          <img
+            src="https://mdbootstrap.com/img/Photos/Avatars/img%20(9).jpg"
+            alt="Profile"
+            className="author-avatar"
+          />
           <span className="author-name">¿Qué quieres compartir hoy?</span>
         </div>
       </div>
@@ -49,13 +61,20 @@ const PostForm = ({ addPost }) => {
           />
         </Form.Group>
 
-        {/* Vista previa del archivo */}
         {file && (
           <div className="file-preview">
             {file.type.startsWith("image/") ? (
               <div className="image-preview-container">
-                <img src={URL.createObjectURL(file) || "/placeholder.svg"} alt="Vista previa" className="preview-img" />
-                <button type="button" className="remove-file-btn" onClick={() => setFile(null)}>
+                <img
+                  src={URL.createObjectURL(file)}
+                  alt="Vista previa"
+                  className="preview-img"
+                />
+                <button
+                  type="button"
+                  className="remove-file-btn"
+                  onClick={() => setFile(null)}
+                >
                   ×
                 </button>
               </div>
@@ -63,7 +82,11 @@ const PostForm = ({ addPost }) => {
               <div className="file-info">
                 <FaFileAlt className="file-icon" />
                 <span className="file-name">{file.name}</span>
-                <button type="button" className="remove-file-btn" onClick={() => setFile(null)}>
+                <button
+                  type="button"
+                  className="remove-file-btn"
+                  onClick={() => setFile(null)}
+                >
                   ×
                 </button>
               </div>
@@ -92,14 +115,17 @@ const PostForm = ({ addPost }) => {
             onChange={(e) => setFile(e.target.files[0])}
           />
 
-          <Button type="submit" className="publish-btn" disabled={!postText.trim() && !file}>
+          <Button
+            type="submit"
+            className="publish-btn"
+            disabled={!postText.trim() && !file}
+          >
             Publicar
           </Button>
         </div>
       </Form>
     </Card>
-  )
-}
+  );
+};
 
-export default PostForm
-
+export default PostForm;
