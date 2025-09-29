@@ -1,26 +1,39 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { FaBell, FaSearch } from "react-icons/fa"
-import "../stylescomponents/Contacts.css"
+import { useState, useEffect } from "react";
+import { FaBell, FaSearch } from "react-icons/fa";
+import "../stylescomponents/Contacts.css";
+
+const STORAGE_KEY = "notificaciones";
 
 const Contacts = () => {
-  const [searchTerm, setSearchTerm] = useState("")
+  const [searchTerm, setSearchTerm] = useState("");
+  const [notifications, setNotifications] = useState([]);
 
-  const notifications = [
-    { id: 1, message: "Nueva tarea asignada", time: "Hace 10 min" },
-    { id: 2, message: "Tu actividad ha sido calificada", time: "Hace 30 min" },
-    { id: 3, message: "Nuevo comentario en tu publicación", time: "Hace 1 hora" },
-    { id: 4, message: "Reunión de profesores mañana", time: "Hace 2 horas" },
-    { id: 5, message: "Nuevo material disponible", time: "Hace 3 horas" },
-    { id: 6, message: "Recordatorio: Entrega de notas", time: "Hace 5 horas" },
-    { id: 7, message: "Mensaje de la dirección", time: "Ayer" },
-    { id: 8, message: "Actualización del sistema", time: "Ayer" },
-  ]
+  // Simular carga inicial desde localStorage
+  useEffect(() => {
+    const almacenadas = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (almacenadas && Array.isArray(almacenadas)) {
+      setNotifications(almacenadas);
+    } else {
+      const simuladas = [
+        { id: 1, message: "Nueva tarea asignada", time: "Hace 10 min" },
+        { id: 2, message: "Tu actividad ha sido calificada", time: "Hace 30 min" },
+        { id: 3, message: "Nuevo comentario en tu publicación", time: "Hace 1 hora" },
+        { id: 4, message: "Reunión de profesores mañana", time: "Hace 2 horas" },
+        { id: 5, message: "Nuevo material disponible", time: "Hace 3 horas" },
+        { id: 6, message: "Recordatorio: Entrega de notas", time: "Hace 5 horas" },
+        { id: 7, message: "Mensaje de la dirección", time: "Ayer" },
+        { id: 8, message: "Actualización del sistema", time: "Ayer" }
+      ];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(simuladas));
+      setNotifications(simuladas);
+    }
+  }, []);
 
   const filteredNotifications = notifications.filter((notification) =>
-    notification.message.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+    notification.message.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="notifications-container">
@@ -66,8 +79,7 @@ const Contacts = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Contacts
-
+export default Contacts;
