@@ -1,12 +1,22 @@
-"use client"
-import {FaClipboardList,FaGraduationCap, FaCalendarAlt, FaBook, FaChartBar, FaCog, FaComments, FaHome, } from "react-icons/fa"
-import "../stylescomponents/sidebar.css"
+"use client";
+import {
+  FaClipboardList,
+  FaGraduationCap,
+  FaChartBar,
+  FaComments,
+  FaHome
+} from "react-icons/fa";
+import "../stylescomponents/sidebar.css";
 
 const SidebarAlumno = () => {
-  // Función para manejar la navegación sin React Router
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  // Validar si hay sesión activa y si el usuario es alumno
+  if (!user || !user.alumno) return null;
+
   const handleNavigation = (path) => {
-    window.location.href = path
-  }
+    window.location.href = path;
+  };
 
   return (
     <div className="sidebar-container">
@@ -18,7 +28,10 @@ const SidebarAlumno = () => {
         <ul className="sidebar-menu">
           {/* Inicio */}
           <li className="sidebar-item active">
-            <div onClick={() => handleNavigation("/alumno")} className="sidebar-link">
+            <div
+              onClick={() => handleNavigation("/alumno")}
+              className="sidebar-link"
+            >
               <div className="sidebar-icon">
                 <FaHome />
               </div>
@@ -28,7 +41,10 @@ const SidebarAlumno = () => {
 
           {/* Actividades */}
           <li className="sidebar-item">
-            <div onClick={() => handleNavigation("/actividades-estudiante")} className="sidebar-link">
+            <div
+              onClick={() => handleNavigation("/actividades-estudiante")}
+              className="sidebar-link"
+            >
               <div className="sidebar-icon">
                 <FaClipboardList />
               </div>
@@ -38,7 +54,10 @@ const SidebarAlumno = () => {
 
           {/* Clases */}
           <li className="sidebar-item">
-            <div onClick={() => handleNavigation("/clases-estudiante")} className="sidebar-link">
+            <div
+              onClick={() => handleNavigation("/clases-estudiante")}
+              className="sidebar-link"
+            >
               <div className="sidebar-icon">
                 <FaGraduationCap />
               </div>
@@ -48,7 +67,10 @@ const SidebarAlumno = () => {
 
           {/* Chats */}
           <li className="sidebar-item">
-            <div onClick={() => handleNavigation("/chats-estudiante")} className="sidebar-link">
+            <div
+              onClick={() => handleNavigation("/chats-estudiante")}
+              className="sidebar-link"
+            >
               <div className="sidebar-icon">
                 <FaComments />
               </div>
@@ -58,7 +80,10 @@ const SidebarAlumno = () => {
 
           {/* Calificaciones */}
           <li className="sidebar-item">
-            <div onClick={() => handleNavigation("/calificaciones-estudiante")} className="sidebar-link">
+            <div
+              onClick={() => handleNavigation("/calificaciones-estudiante")}
+              className="sidebar-link"
+            >
               <div className="sidebar-icon">
                 <FaChartBar />
               </div>
@@ -68,7 +93,7 @@ const SidebarAlumno = () => {
         </ul>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default SidebarAlumno
+export default SidebarAlumno;
