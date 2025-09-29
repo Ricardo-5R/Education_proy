@@ -1,23 +1,37 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Container, Row, Col } from "react-bootstrap";
-import { FaUserGraduate, FaChalkboardTeacher, FaUsersCog , FaHome} from "react-icons/fa";
-import { Link } from "react-router-dom";
-import "../styles/Admin.css"; 
+import {
+  FaUserGraduate,
+  FaChalkboardTeacher,
+  FaUsersCog,
+  FaHome
+} from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
+import "../styles/Admin.css";
 
 const AdminPanel = () => {
+  const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  useEffect(() => {
+    if (!user || !user.admin) {
+      navigate("/login");
+    }
+  }, [user, navigate]);
+
   return (
     <div className="admin-page">
       <Container fluid className="content-container">
         <Row>
+          {/* Sidebar de navegación */}
           <Col md={2} className="admin-sidebar">
             <h4 className="sidebar-title">Admin</h4>
             <ul className="sidebar-menu">
-                <li>
-                    <a href="/admin" className="sidebar-link">
-                    <FaHome /> Dashboard
-                    </a>
-                </li>
-                <li></li>
+              <li>
+                <Link to="/admin" className="sidebar-link">
+                  <FaHome /> Dashboard
+                </Link>
+              </li>
               <li>
                 <Link to="/registro-estudiante" className="sidebar-link">
                   <FaUserGraduate /> Estudiantes
@@ -36,10 +50,14 @@ const AdminPanel = () => {
             </ul>
           </Col>
 
+          {/* Panel principal */}
           <Col md={10} className="admin-main-content">
             <div className="welcome-panel">
               <h2>Bienvenido al Panel de Administración</h2>
-              <p>Desde aquí puedes gestionar estudiantes, docentes y asignación de grupos.</p>
+              <p>
+                Desde aquí puedes gestionar estudiantes, docentes y asignación
+                de grupos.
+              </p>
             </div>
           </Col>
         </Row>
