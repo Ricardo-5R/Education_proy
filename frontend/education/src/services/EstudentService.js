@@ -1,105 +1,72 @@
-const API_URL = "http://localhost:3000/api/student";
-import { toast } from "react-toastify"
+import { toast } from "react-toastify";
+
+const STORAGE_KEY = "estudiantes";
 
 export const EstudentService = {
   async register(name, lastName, email, password) {
     try {
-        // Preparar los datos según la estructura esperada por el backend
-        const estudentData = {
-          NombreCompleto: `${name} ${lastName}`,
-          email: email,
-          password: password
-        }
-  
-        // Realizar la petición POST al backend usando fetch
-        const response = await fetch(API_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          },
-          credentials: 'include',
-          body: JSON.stringify(estudentData)
-        })
-  
-        if (!response.ok) {
-          const errorData = await response.json();
-          toast.error(errorData.message || 'Error al registrar el estudiante');
-          return;
-        }
-  
-        const data = await response.json()
-  
-        // Mostrar mensaje de éxito
-        toast.success('Estudiante Registrado Exitosamente')
-  
-        return data;
-      } catch (error) {
-        // Mostrar mensaje de error
-        toast.error(error.message || 'Error al registrar el estudiante')
-        console.error('Error al registrar estudiante:', error)
+      const estudiantes = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+
+      // Validar si el email ya existe
+      const existe = estudiantes.some(e => e.email === email);
+      if (existe) throw new Error("El correo ya está registrado");
+
+      const nuevoEstudiante = {
+        id: Date.now().toString(),
+        NombreCompleto: `${name} ${lastName}`,
+        email,
+        password,
+        creadoEn: new Date().toISOString()
+      };
+
+      estudiantes.push(nuevoEstudiante);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(estudiantes));
+
+      toast.success("Estudiante Registrado Exitosamente");
+      return nuevoEstudiante;
+    } catch (error) {
+      toast.error(error.message || "Error al registrar el estudiante");
+      console.error("Error al registrar estudiante:", error);
     }
   },
 
   async getAll() {
-    const response = await fetch(API_URL, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      },
-      credentials: 'include'
-    })
-
-    if (!response.ok) {
-      const dataError = await response.json();
-      console.log(dataError.message);
-      throw new Error('Error al obtener los estudiantes')
+    try {
+      const estudiantes = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      return estudiantes;
+    } catch (error) {
+      toast.error("Error al obtener los estudiantes");
+      throw new Error("Error al obtener los estudiantes");
     }
-
-    const data = await response.json();
-
-    console.log(data)
-
-    return data;
   },
 
   async update(id, data) {
-    const response = await fetch(`${API_URL}/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      },
-      credentials: 'include',
-      body: JSON.stringify(data)
-    })
+    try {
+      const estudiantes = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      const index = estudiantes.findIndex(e => e.id === id);
+      if (index === -1) throw new Error("Estudiante no encontrado");
 
-    if (!response.ok) {
-      throw new Error('Error al actualizar el estudiante')
+      estudiantes[index] = { ...estudiantes[index], ...data, actualizadoEn: new Date().toISOString() };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(estudiantes));
+
+      toast.success("Estudiante actualizado exitosamente");
+      return estudiantes[index];
+    } catch (error) {
+      toast.error(error.message || "Error al actualizar el estudiante");
+      throw new Error("Error al actualizar el estudiante");
     }
-
-    const responseData = await response.json();
-
-    toast.success(responseData.message);
-
-    return responseData;
   },
-    async delete(id) {
-    const response = await fetch(`${API_URL}/${id}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
-    });
-    
-    if (!response.ok) {
-      throw new Error('Error al eliminar el estudiante');
+
+  async delete(id) {
+    try {
+      const estudiantes = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      const nuevosEstudiantes = estudiantes.filter(e => e.id !== id);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(nuevosEstudiantes));
+
+      toast.success("Estudiante Eliminado Exitosamente");
+    } catch (error) {
+      toast.error("Error al eliminar el estudiante");
+      throw new Error("Error al eliminar el estudiante");
     }
-
-    toast.success('Estudiante Eliminado Exitosamente');
-    
-    return;
-  },
+  }
 };
